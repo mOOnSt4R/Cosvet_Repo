@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COS Veterinary Clinic — Surgery Price Calculator</title>
+<style>
+:root{--teal:#087e8b;--cyan:#dff7f8;--ink:#17343a;--muted:#61777b;--line:#d8e6e8;--bg:#f4f9fa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:16px/1.45 Arial,Helvetica,sans-serif;color:var(--ink)}
+.wrap{max-width:1000px;margin:28px auto;padding:16px}.header{background:linear-gradient(120deg,#087e8b,#23b8c4);color:white;padding:25px;border-radius:18px 18px 0 0}
+.navbar-brand{width:100%;display:block;line-height:0}.navbar-logo{display:block;width:100%;height:auto;max-height:190px;object-fit:contain;object-position:center;background:#fff;border-radius:10px}.header h1{margin:0 0 6px;font-size:clamp(23px,4vw,32px)}.header p{margin:0;opacity:.95}
+.panel{background:white;padding:22px;border:1px solid var(--line);border-top:0;box-shadow:0 8px 24px #1233}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+label{display:block;font-weight:700;font-size:14px;margin:0 0 6px}
+select,input{width:100%;padding:12px;border:1px solid #bdd1d5;border-radius:9px;background:white;color:var(--ink);font:inherit}
+small,.hint{color:var(--muted);font-size:12px}.section{font-weight:700;color:var(--teal);margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.check{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:14px}
+.check input{width:auto}.check label{margin:0;font-weight:500}
+.result{background:#e9fafa;border:1px solid #b6e5e8;border-radius:14px;padding:18px;margin-top:20px}
+.total{font-size:clamp(30px,5vw,42px);font-weight:800;color:#067987;margin:5px 0}
+.breakdown{width:100%;border-collapse:collapse;margin-top:12px}.breakdown td{padding:8px 0;border-bottom:1px solid #cfe8e9}.breakdown td:last-child{text-align:right;font-weight:700}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}button{border:0;border-radius:9px;padding:11px 16px;font-weight:700;cursor:pointer;background:var(--teal);color:white}button.secondary{background:#e6eff0;color:var(--ink)}
+.note{background:#fff8e5;border:1px solid #f0d999;padding:12px;border-radius:10px;margin-top:16px;font-size:13px}
+footer{color:var(--muted);font-size:12px;margin:16px 4px}
+@media(max-width:650px){.grid,.checks{grid-template-columns:1fr}.panel{padding:16px}.wrap{margin:8px auto;padding:8px}.navbar-logo{max-height:130px;border-radius:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>COS Veterinary Clinic</h1>
+    <p>Surgery Price Calculator · Internal estimate tool</p>
+  </div>
+  </div>
+  <div class="panel">
+    <div class="grid">
+      <div><label for="procedure">Procedure</label><select id="procedure"></select></div>
+      <div><label for="species">Patient type</label><select id="species"><option value="Dog">Dog</option><option value="Cat">Cat</option></select></div>
+      <div><label for="weight">Body weight (kg)</label><input id="weight" type="number" min="0" step="0.1" placeholder="Enter weight in kg"></div>
+      <div><label for="quantity">Quantity / units (where applicable)</label><input id="quantity" type="number" min="1" step="1" value="1"></div>
+    </div>
+    <div id="subprocedureWrap" style="display:none;margin-top:16px">
+      <label for="subprocedure">Additional procedure / extraction type</label><select id="subprocedure"></select>
+    </div>
+    <div class="section">Laboratory & Pre-Surgical Services</div>
+    <div class="checks">
+      <div class="check"><input type="checkbox" id="labCheckup"><label for="labCheckup">Check-up (+₱450)</label></div>
+      <div class="check"><input type="checkbox" id="labCBC"><label for="labCBC">CBC (+₱900)</label></div>
+      <div class="check"><input type="checkbox" id="labBloodchem"><label for="labBloodchem">BloodChem (₱2,100–₱2,700)</label></div>
+      <div class="check"><input type="checkbox" id="labSDMA"><label for="labSDMA">SDMA (+₱2,500)</label></div>
+    </div>
+    <div class="grid" style="margin-top:14px">
+      <div id="bloodchemWrap" style="display:none">
+        <label for="bloodchemPrice">BloodChem price</label>
+        <select id="bloodchemPrice"><option value="2100">₱2,100</option><option value="2200">₱2,200</option><option value="2500">₱2,500</option><option value="2700">₱2,700</option></select>
+      </div>
+    </div>
+    <div class="section">Take-Home Medicines</div>
+    <div class="checks">
+      <div class="check"><input type="checkbox" id="takeHomeMeds"><label for="takeHomeMeds">Include take-home medicines (₱700–₱1,500)</label></div>
+    </div>
+    <div class="grid" style="margin-top:14px">
+      <div><label for="takeHomePrice">Take-home medicines price</label><select id="takeHomePrice"><option value="700">₱700</option><option value="800">₱800</option><option value="900">₱900</option><option value="1000">₱1,000</option><option value="1100">₱1,100</option><option value="1200">₱1,200</option><option value="1300">₱1,300</option><option value="1400">₱1,400</option><option value="1500">₱1,500</option></select></div>
+    </div>
+    <div class="section">Optional charges</div>
+    <div class="checks">
+      <div class="check"><input type="checkbox" id="iv"><label for="iv">IV infusion (+₱1,000)</label></div>
+      <div class="check"><input type="checkbox" id="day"><label for="day">Day confinement (+₱500 per 3 hours)</label></div>
+      <div class="check"><input type="checkbox" id="oxygen"><label for="oxygen">Oxygen therapy (+₱500 per 30 min)</label></div>
+      <div class="check"><input type="checkbox" id="tapup"><label for="tapup">Tap-up (+₱300 each)</label></div>
+      <div class="check"><input type="checkbox" id="suture"><label for="suture">Additional suture (+₱500 each)</label></div>
+      <div class="check"><input type="checkbox" id="biopsy"><label for="biopsy">Biopsy — tumor removal only</label></div>
+      <div class="check"><input type="checkbox" id="emergency"><label for="emergency">Eye surgery emergency fee (+₱1,000)</label></div>
+    </div>
+    <div class="grid" style="margin-top:14px">
+      <div><label for="oxygenUnits">Oxygen duration (30-minute units)</label><input id="oxygenUnits" type="number" min="1" step="1" value="1"></div>
+      <div><label for="tapUnits">Number of tap-ups</label><input id="tapUnits" type="number" min="1" step="1" value="1"></div>
+      <div><label for="sutureUnits">Number of additional sutures</label><input id="sutureUnits" type="number" min="1" step="1" value="1"></div>
+      <div><label for="biopsySize">Biopsy size</label><select id="biopsySize"><option value="1500">Small — ₱1,500</option><option value="2000">Medium — ₱2,000</option><option value="2500">Large — ₱2,500</option></select></div>
+    </div>
+    <div class="result" aria-live="polite">
+      <div class="hint">Estimated total</div>
+      <div class="total" id="total">₱0</div>
+      <div id="status" class="hint">Choose a procedure and enter the patient's weight.</div>
+      <table class="breakdown"><tbody id="breakdown"></tbody></table>
+      <div class="actions"><button id="copy">Copy estimate</button><button class="secondary" id="reset">Reset</button></div>
+    </div>
+    <div class="note"><b>Important:</b> This is an estimate based on the supplied price list. The listed “Surgery Fee” is used as the base price; it is not added again to the professional fee, anesthetics, and consumables. Take-home medicines (₱700–₱1,500) and laboratory tests are included only when selected; extra supplies, extra sutures/tap-ups, and unlisted/emergency fees may be charged separately. Confirm the final quotation with the veterinarian. If a weight range or price is not listed, the calculator will not guess a price.</div>
+  </div>
+  <footer>For clinic staff use. Prices are in Philippine pesos (₱).</footer>
+</div>
+<script>
+const data = {
+"Cas​​tration": {
+"Cat":[{max:3,price:3300,label:"Less than 3 kg"},{min:3,price:3800,label:"More than 3 kg"}],
+"Dog":[{max:5,price:5000,label:"Up to 5 kg"},{min:6,max:10,price:5800,label:"6–10 kg"},{min:11,max:15,price:6500,label:"11–15 kg"},{min:16,max:20,price:7000,label:"16–20 kg"},{min:21,max:25,price:7700,label:"21–25 kg"},{min:26,max:30,price:8800,label:"26–30 kg"}]},
+"Ovariohysterectomy / Spay": {
+"Cat":[{max:3,price:4600,label:"Less than 3 kg"},{min:3,price:5100,label:"More than 3 kg"}],
+"Dog":[{max:10,price:6500,label:"Up to 10 kg"},{min:11,max:15,price:8500,label:"11–15 kg"},{min:16,max:20,price:12500,label:"16–20 kg"},{min:21,max:25,price:14500,label:"21–25 kg"},{min:26,max:30,price:17000,label:"26–30 kg"}]},
+"Cesarean Section": {
+"Cat":[{max:3,price:7000,label:"Less than 3 kg"},{min:3,price:9000,label:"More than 3 kg"}],
+"Dog":[{max:10,price:12000,label:"Up to 10 kg"},{min:11,max:14,price:15000,label:"11–14 kg"},{min:15,max:20,price:18000,label:"15–20 kg"},{min:21,max:25,price:22000,label:"21–25 kg"},{min:26,max:30,price:24000,label:"26–30 kg"},{min:31,max:35,price:28000,label:"31–35 kg"}]},
+"Whelping Assist": {"Dog":[{max:10,price:4000,label:"Up to 10 kg"},{min:11,max:14,price:5500,label:"11–14 kg"},{min:15,max:20,price:8500,label:"15–20 kg"},{min:21,max:25,price:9500,label:"21–25 kg"},{min:26,max:30,price:11000,label:"26–30 kg"},{min:31,max:35,price:12500,label:"31–35 kg"}]},
+"Cystolithotomy": {"Cat":[{max:3,price:10000,label:"Less than 3 kg"},{min:3,price:12000,label:"More than 3 kg"}],"Dog":[{max:10,price:12000,label:"Up to 10 kg"},{min:11,max:15,price:15000,label:"11–15 kg"},{min:16,max:20,price:18000,label:"16–20 kg"},{min:21,max:25,price:20000,label:"21–25 kg"},{min:26,max:30,price:25000,label:"26–30 kg"},{min:31,max:35,price:28000,label:"31–35 kg"}]},
+"Tumor Removal": {"Cat":[{max:3,price:5000,label:"Less than 3 kg"},{min:3,price:6000,label:"More than 3 kg"}],"Dog":[{max:10,price:6500,label:"Up to 10 kg"},{min:11,max:15,price:7500,label:"11–15 kg"},{min:16,max:20,price:8500,label:"16–20 kg"},{min:21,max:25,price:9000,label:"21–25 kg"},{min:26,max:30,price:10000,label:"26–30 kg"},{min:31,max:35,price:12000,label:"31–35 kg"}]},
+"Temporary Tarsorrhaphy": {"Dog":[{max:10,price:6000,label:"Up to 10 kg"},{min:11,max:15,price:7500,label:"11–15 kg"},{min:16,max:20,price:8000,label:"16–20 kg"},{min:21,max:25,price:10000,label:"21–25 kg"},{min:26,max:30,price:12000,label:"26–30 kg"}]},
+"Cherry Eye — Third Eyelid Excision / Tuck-in": {"Dog":[{max:10,price:7500,label:"Up to 10 kg"},{min:11,max:15,price:9000,label:"11–15 kg"},{min:16,max:20,price:11000,label:"16–20 kg"},{min:21,max:25,price:12500,label:"21–25 kg"},{min:26,max:30,price:15000,label:"26–30 kg"}]},
+"Enucleation + Permanent Tarsorrhaphy": {"Dog":[{max:10,price:10500,label:"Up to 10 kg"},{min:11,max:20,price:16000,label:"11–20 kg"},{min:21,max:30,price:20000,label:"21–30 kg"}]},
+"Aural Hematoma": {"Dog":[{max:5,price:8000,label:"Up to 5 kg"},{min:6,max:10,price:10000,label:"6–10 kg"},{min:11,max:15,price:13000,label:"11–15 kg"},{min:16,max:20,price:15000,label:"16–20 kg"},{min:21,max:25,price:17000,label:"21–25 kg"},{min:26,max:30,price:20000,label:"26–30 kg"}]},
+"Rectal Prolapse Repair": {"Dog":[{max:5,price:4000,label:"Up to 5 kg"},{min:6,max:10,price:5000,label:"6–10 kg"},{min:11,max:15,price:6500,label:"11–15 kg"},{min:16,max:20,price:8000,label:"16–20 kg"},{min:21,max:25,price:10000,label:"21–25 kg"},{min:26,max:30,price:12000,label:"26–30 kg"}]},
+"Urinary Catheterization (with sedation)": {"Cat":[{max:5,price:5000,label:"Up to 5 kg"}],"Dog":[{max:5,price:5000,label:"Up to 5 kg"},{min:6,max:10,price:6500,label:"6–10 kg"},{min:11,max:15,price:8000,label:"11–15 kg"},{min:16,max:20,price:9000,label:"16–20 kg"},{min:21,max:25,price:10500,label:"21–25 kg"},{min:26,max:30,price:12000,label:"26–30 kg"}]},
+"Urinary Catheterization (non-sedation)": {"Cat":[{price:1800,label:"Cat — no weight range"}],"Dog":[{max:10,price:2700,label:"Up to 10 kg"},{min:11,max:20,price:3200,label:"11–20 kg"},{min:21,max:30,price:3700,label:"21–30 kg"}]},
+"Dental Prophylaxis": {"Dog":[{max:5,price:5000,label:"Up to 5 kg"},{min:6,max:10,price:6000,label:"6–10 kg"},{min:11,max:15,price:7000,label:"11–15 kg"},{min:16,max:20,price:8000,label:"16–20 kg"},{min:21,max:25,price:9000,label:"21–25 kg"},{min:26,max:30,price:10000,label:"26–30 kg"}],"Cat":[{max:5,price:5000,label:"Up to 5 kg"}]},
+"Umbilical Hernia Repair": {"Dog":[{max:10,price:6000,label:"Up to 10 kg"},{min:11,max:15,price:7500,label:"11–15 kg"},{min:16,max:20,price:8200,label:"16–20 kg"},{min:21,max:25,price:10000,label:"21–25 kg"},{min:26,max:30,price:12000,label:"26–30 kg"}]},
+"Wound Repair": {"Dog":[{max:5,price:4000,label:"Up to 5 kg"},{min:6,max:10,price:4500,label:"6–10 kg"},{min:11,max:15,price:5000,label:"11–15 kg"},{min:16,max:20,price:5500,label:"16–20 kg"},{min:21,max:25,price:6500,label:"21–25 kg"},{min:26,max:30,price:7000,label:"26–30 kg"}],"Cat":[{max:5,price:4000,label:"Up to 5 kg"}]},
+"Temporary Splint": {"Dog":[{max:10,price:4000,label:"Up to 10 kg"},{min:11,max:15,price:6000,label:"11–15 kg"},{min:16,max:20,price:7000,label:"16–20 kg"}]},
+"Mastectomy": {"Cat":[{price:5500,label:"Cat — base per teat"}],"Dog":[{max:10,price:7500,label:"Up to 10 kg"},{min:11,max:20,price:10000,label:"11–20 kg"}]},
+"Maggots Removal": {"Dog":[{max:5,price:3600,label:"Up to 5 kg"},{min:6,max:10,price:4200,label:"6–10 kg"},{min:11,max:15,price:4500,label:"11–15 kg"},{min:16,max:20,price:5000,label:"16–20 kg"},{min:21,max:25,price:7000,label:"21–25 kg"},{min:26,max:30,price:8000,label:"26–30 kg"}]},
+"Exploratory Laparotomy": {"Dog":[{max:5,price:5000,label:"Up to 5 kg"},{min:6,max:10,price:6500,label:"6–10 kg"},{min:11,max:14,price:8000,label:"11–14 kg"},{min:15,max:20,price:10000,label:"15–20 kg"},{min:21,max:25,price:12000,label:"21–25 kg"},{min:26,max:30,price:14000,label:"26–30 kg"},{min:31,max:35,price:15000,label:"31–35 kg"}]},
+"Euthanasia": {"Dog":[{max:5,price:4000,label:"Up to 5 kg"},{min:6,max:10,price:5000,label:"6–10 kg"},{min:11,max:15,price:6000,label:"11–15 kg"},{min:16,max:20,price:7500,label:"16–20 kg"}],"Cat":[{max:5,price:4000,label:"Up to 5 kg"}]},
+"Tooth Extraction": {"Any":[{price:0,label:"Select extraction type"}]},
+"Additional Procedure / Add-on": {"Any":[{price:0,label:"Select an add-on"}]}
+};
+const extras = {
+"Tooth Extraction":[["Premolar",2500],["Molar",3500],["Incisors",1500],["Canine",5500],["Deciduous canine",2500]],
+"Additional Procedure / Add-on":[["Spay added to C-section (cat)",3000],["Pyometra add-on (cat spay)",3500],["Vaginal prolapse add-on (cat spay)",4000],["Pyometra add-on (dog spay, under 15 kg)",5500],["Pyometra add-on (dog spay, 16–20 kg)",8000],["Pyometra add-on (dog spay, 21–30 kg)",10000],["Abortion under 1 month (cat spay)",3500],["Abortion under 1 month (dog spay)",5500],["Vaginal prolapse add-on (dog spay)",6000],["Umbilical hernia add-on (catheter/other applicable procedure)",3000],["Gastrotomy add-on",5000],["Enterotomy add-on",6000],["Anastomosis add-on",8500],["Monorchid add-on",2000],["Cryptorchid add-on",3500],["Scrotal ablation add-on",5000],["Umbilical hernia add-on (castration)",3000]]
+};
+const procedure=document.getElementById('procedure'), species=document.getElementById('species'), weight=document.getElementById('weight');
+const subWrap=document.getElementById('subprocedureWrap'), sub=document.getElementById('subprocedure');
+Object.keys(data).forEach(k=>{let o=document.createElement('option');o.value=k;o.textContent=k.replace(/\u200b/g,'');procedure.appendChild(o)});
+function money(n){return '₱'+Math.round(n).toLocaleString('en-PH')}
+function getBracket(){
+ const d=data[procedure.value]; const s=d[species.value]||d.Any;
+ if(!s)return null;
+ if(s.length===1 && s[0].max===undefined && s[0].min===undefined)return s[0];
+ const w=Number(weight.value); if(!weight.value||w<=0)return null;
+ return s.find(b=>(b.min===undefined||w>=b.min)&&(b.max===undefined||w<=b.max))||null;
+}
+function updateSpecies(){
+ const p=procedure.value;
+ const hasCat=!!data[p].Cat, hasDog=!!data[p].Dog;
+ [...species.options].forEach(o=>{o.disabled=(o.value==='Cat'&&!hasCat)||(o.value==='Dog'&&!hasDog)});
+ if(species.selectedOptions[0]?.disabled)species.value=hasDog?'Dog':'Cat';
+ subWrap.style.display=extras[p]?'block':'none';
+ sub.innerHTML='';
+ if(extras[p])extras[p].forEach(([name,price])=>{const o=document.createElement('option');o.value=price;o.textContent=name+' — '+money(price);sub.appendChild(o)});
+ document.getElementById('biopsy').disabled=p!=='Tumor Removal';
+ document.getElementById('emergency').disabled=!p.toLowerCase().includes('tarsorrhaphy')&&!p.toLowerCase().includes('cherry eye')&&!p.toLowerCase().includes('enucleation');
+ calculate();
+}
+function calculate(){
+ const p=procedure.value, d=data[p], br=getBracket(), rows=[]; let total=0;
+ if(!br){document.getElementById('total').textContent='—';document.getElementById('status').textContent='Enter a valid weight and select a weight range covered by the price list.';document.getElementById('breakdown').innerHTML='';return}
+ let base=Number(br.price)||0;
+ if(p==='Mastectomy'&&species.value==='Cat')base*=Math.max(1,Number(document.getElementById('quantity').value)||1);
+ if(p==='Tooth Extraction'||p==='Additional Procedure / Add-on')base=Number(sub.value)||0;
+ rows.push([p+' — '+br.label,base]);total+=base;
+ const add=(id,label,amount)=>{if(document.getElementById(id).checked){rows.push([label,amount]);total+=amount}};
+ add('iv','IV infusion',1000);add('day','Day confinement (3 hours)',500);
+ if(document.getElementById('oxygen').checked){let n=Math.max(1,Number(document.getElementById('oxygenUnits').value)||1);add('oxygen','Oxygen therapy ('+n+' × 30 min)',500*n)}
+ if(document.getElementById('tapup').checked){let n=Math.max(1,Number(document.getElementById('tapUnits').value)||1);add('tapup','Tap-up ('+n+')',300*n)}
+ if(document.getElementById('suture').checked){let n=Math.max(1,Number(document.getElementById('sutureUnits').value)||1);add('suture','Additional suture ('+n+')',500*n)}
+ if(document.getElementById('biopsy').checked&&p==='Tumor Removal'){let b=Number(document.getElementById('biopsySize').value);rows.push(['Biopsy',b]);total+=b}
+ if(document.getElementById('emergency').checked&&!document.getElementById('emergency').disabled){rows.push(['Eye surgery emergency fee',1000]);total+=1000}
+ add('labCheckup','Check-up',450);
+ add('labCBC','CBC',900);
+ add('labBloodchem','BloodChem',Number(document.getElementById('bloodchemPrice').value));
+ add('labSDMA','SDMA',2500);
+ add('takeHomeMeds','Take-home medicines',Number(document.getElementById('takeHomePrice').value));
+ document.getElementById('bloodchemWrap').style.display=document.getElementById('labBloodchem').checked?'block':'none';
+ document.getElementById('total').textContent=money(total);
+ document.getElementById('status').textContent='Weight category: '+br.label+'. Take-home medicines and laboratory services are included only when selected.';
+ document.getElementById('breakdown').innerHTML=rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+money(r[1])+'</td></tr>').join('')+'<tr><td><b>ESTIMATED TOTAL</b></td><td><b>'+money(total)+'</b></td></tr>';
+}
+procedure.addEventListener('change',updateSpecies);species.addEventListener('change',calculate);weight.addEventListener('input',calculate);
+['quantity','iv','day','oxygen','oxygenUnits','tapup','tapUnits','suture','sutureUnits','biopsy','biopsySize','emergency','labCheckup','labCBC','labBloodchem','labSDMA','bloodchemPrice','takeHomeMeds','takeHomePrice'].forEach(id=>document.getElementById(id).addEventListener('change',calculate));
+sub.addEventListener('change',calculate);
+document.getElementById('reset').addEventListener('click',()=>{procedure.selectedIndex=0;species.value='Dog';weight.value='';document.getElementById('quantity').value=1;['iv','day','oxygen','tapup','suture','biopsy','emergency','labCheckup','labCBC','labBloodchem','labSDMA','takeHomeMeds'].forEach(id=>document.getElementById(id).checked=false);document.getElementById('bloodchemPrice').value='2100';document.getElementById('takeHomePrice').value='700';document.getElementById('oxygenUnits').value=1;document.getElementById('tapUnits').value=1;document.getElementById('sutureUnits').value=1;document.getElementById('biopsySize').value='1500';updateSpecies()});
+document.getElementById('copy').addEventListener('click',()=>{const text='COS Veterinary Clinic — Surgery Estimate\nProcedure: '+procedure.options[procedure.selectedIndex].text+'\nPatient: '+species.value+'\nWeight: '+(weight.value||'Not entered')+' kg\n'+[...document.querySelectorAll('#breakdown tr')].map(tr=>tr.cells[0].innerText+': '+tr.cells[1].innerText).join('\n')+'\nNote: Estimate only; confirm final charges with the veterinarian.';navigator.clipboard?.writeText(text).then(()=>alert('Estimate copied.')).catch(()=>alert(text))});
+updateSpecies();
+</script>
+</body>
+</html>
